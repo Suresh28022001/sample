@@ -1,6 +1,7 @@
 import axios from 'axios'
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 export default function Get() {
     const [data, setData] = useState([])
     useEffect(() => {
@@ -15,6 +16,12 @@ export default function Get() {
     await axios.delete(api)
     await axios.get('https://663b290ffee6744a6ea08b0a.mockapi.io/student')
     .then(res => setData(res.data))
+  }
+  const nav = useNavigate()
+  const change = (value) => {
+    const id =value
+    console.log(id)
+    nav(`/update/${id}`)
   }
   return (
     <div>
@@ -75,7 +82,7 @@ export default function Get() {
                     <td>{items.phone}</td>
                   
                     <td>
-                      <a href="/post">  <button className='btn btn-primary' >Add</button></a>
+                      <a href="/post">  <button className='btn btn-primary' onClick={()=>change(items.id)} >update</button></a>
                     </td>
                     <td>
                         <button  className='btn btn-danger'  onClick={()=> remove(items.id)}>Delete</button>
@@ -122,3 +129,49 @@ export function Post(){
         </div>
     )
 }
+export const Update = () => {
+        const [name, setName] = useState('')
+        const [mail, setMail] = useState('')
+        const [phone, setPhone] = useState('') 
+        const {id} = useParams()
+        console.log(id)
+        const api = `https://663b290ffee6744a6ea08b0a.mockapi.io/student/${id}`
+        useEffect(() => {
+            axios.get(api)
+            .then(res => {
+                console.log(res.data)
+                setName(res.data.name)
+                setMail(res.data.email)
+                setPhone(res.data.phone)
+            })
+        },[]) 
+        const obj = {
+            name: name,
+            email: mail,
+            phone: phone
+        }
+        const nav = useNavigate()
+        console.log(name, phone, mail)   
+        const update = async() => {
+           await axios.put(api,obj)
+           await nav('/')
+        }
+    return(
+        <div className='container-lg bg-warning'>
+            <div className=''>
+                
+            <label htmlFor=""  className='form-label'>Name</label><br/>
+            <input type="text" className='form-input' onChange={(e) => setName(e.target.value)} value={name}/><br/>
+            <label htmlFor="" className='form-label'>eMail</label><br/>
+            <input type='mail' className='form-input' onChange={(e)=> setMail(e.target.value)} value={mail} /><br/>
+            <label htmlFor="" className='form-label'>Phone</label><br/>
+            <input type='number' className='form-input' onChange={(e)=> setPhone(e.target.value)} value={phone} /><br/>
+            <button className='btn btn-success' onClick={update} >
+                Submit
+            </button>
+            
+            </div>
+        </div>
+    )
+}
+       
